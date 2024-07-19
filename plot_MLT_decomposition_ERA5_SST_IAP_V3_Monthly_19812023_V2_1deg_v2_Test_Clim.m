@@ -212,196 +212,196 @@ clc;clear
 
 
 %% 1.2 Monthly MLT from IAP for 1981-2023 - V2: MLD Climatology
-%  Monthly MLT 1981-2022 
-clc;clear
-addpath /srv/ccrc/OceanME/z5195509/MATLAB_Functions
-time_ann=(1981:2022)';
-
-    % #####################################################################
-    % Monthly MLD Climatology from IAP
-    count=1;
-    for year=1981:2010
-        disp(['   MLD from IAPv3, Year#',num2str(year)])
-          cd('/srv/ccrc/OceanME/z5195509/Data/IAP_Global_Ocean_Gridded_Product/Global_GSW_Monthly_V2_Double/MLD')
-          % dRh0=0.125 ########################################################
-          load(['mld_Rh0_0125_GSW_SA_CT_Interp_IAP_C17_',num2str(year),'.mat'],'mld','lon_IAP','lat_IAP')
-          lat_IAP=lat_IAP(:,1);
-          mld0(:,:,1:12)=squeeze(mld(:,:,1,1:12));
-          clear mld
-
-          lon_IAP0(1:340,1)=lon_IAP(21:360,1);
-          lon_IAP0(341:360,1)=lon_IAP(1:20,1)+360; clear lon_IAP
-          lon_IAP=lon_IAP0; clear lon_IAP0
-
-          mld00(1:340,:,:)=mld0(21:360,:,:);
-          mld00(341:360,:,:)=mld0(1:20,:,:); clear mld0
-          mld_monthly(:,:,:,count)=mld00; clear mld00
-          count=count+1;
-    end
-    clear year count
-    mld_monthly=nanmean(mld_monthly,4);
-      % figure;imagesc(mld_monthly(:,:,1))
-    % #####################################################################
-      
-
-% #########################################################################
-count_yr=1;
-for year=1981:2022
-    % #####################################################################
-    % Mixed-Layer Temp from IAP
-    % Monthly MLD from IAP
-    disp(['   MLT from IAPv3, Year#',num2str(year)])
-%       cd('/srv/ccrc/OceanME/z5195509/Data/IAP_Global_Ocean_Gridded_Product/Global_GSW_Monthly_V2_Double/MLD')
-%       % dRh0=0.125 ########################################################
-%       load(['mld_Rh0_0125_GSW_SA_CT_Interp_IAP_C17_',num2str(year),'.mat'],'mld','lon_IAP','lat_IAP')
-%       lat_IAP=lat_IAP(:,1);
-%       mld0(:,:,1:12)=squeeze(mld(:,:,1,1:12));
-%       clear mld
-%       
-%       lon_IAP0(1:340,1)=lon_IAP(21:360,1);
-%       lon_IAP0(341:360,1)=lon_IAP(1:20,1)+360; clear lon_IAP
-%       lon_IAP=lon_IAP0; clear lon_IAP0
-%       
-%       mld00(1:340,:,:)=mld0(21:360,:,:);
-%       mld00(341:360,:,:)=mld0(1:20,:,:); clear mld0
-%       mld_monthly=mld00; clear mld00
+% %  Monthly MLT 1981-2022 
+% clc;clear
+% addpath /srv/ccrc/OceanME/z5195509/MATLAB_Functions
+% time_ann=(1981:2022)';
+% 
+%     % #####################################################################
+%     % Monthly MLD Climatology from IAP
+%     count=1;
+%     for year=1981:2010
+%         disp(['   MLD from IAPv3, Year#',num2str(year)])
+%           cd('/srv/ccrc/OceanME/z5195509/Data/IAP_Global_Ocean_Gridded_Product/Global_GSW_Monthly_V2_Double/MLD')
+%           % dRh0=0.125 ########################################################
+%           load(['mld_Rh0_0125_GSW_SA_CT_Interp_IAP_C17_',num2str(year),'.mat'],'mld','lon_IAP','lat_IAP')
+%           lat_IAP=lat_IAP(:,1);
+%           mld0(:,:,1:12)=squeeze(mld(:,:,1,1:12));
+%           clear mld
+% 
+%           lon_IAP0(1:340,1)=lon_IAP(21:360,1);
+%           lon_IAP0(341:360,1)=lon_IAP(1:20,1)+360; clear lon_IAP
+%           lon_IAP=lon_IAP0; clear lon_IAP0
+% 
+%           mld00(1:340,:,:)=mld0(21:360,:,:);
+%           mld00(341:360,:,:)=mld0(1:20,:,:); clear mld0
+%           mld_monthly(:,:,:,count)=mld00; clear mld00
+%           count=count+1;
+%     end
+%     clear year count
+%     mld_monthly=nanmean(mld_monthly,4);
 %       % figure;imagesc(mld_monthly(:,:,1))
-    % #####################################################################
-      
-      
-    % #####################################################################
-    % Monthly MLT from IAP
-      cd('/srv/ccrc/OceanME/z5195509/Data/IAP_Global_Ocean_Gridded_Product/Global_GSW_Monthly_V2_Double/')
-      load(['CT_depth_Monthly_gswTSinterp_Glob_10itvl_IAP_C17_',num2str(year),'.mat'],'CT_depth','depth10')
-      CT_depth0(1:340,1:180,1:196,1:12)=CT_depth(21:360,1:180,1:196,1:12);
-      CT_depth0(341:360,1:180,1:196,1:12)=CT_depth(1:20,1:180,1:196,1:12);
-      clear CT_depth
-      depth10=depth10(1:196,1);
-
-      depth_MML=nan(length(lon_IAP),length(lat_IAP),length(depth10),12);
-      for month=1:12
-          for i=1:length(lon_IAP)
-              for j=1:length(lat_IAP)
-                  k_MML=find(abs(depth10(:,1)-mld_monthly(i,j,month))==min(abs(depth10(:,1)-mld_monthly(i,j,month))));
-                  depth_MML(i,j,1:k_MML,month)=1;
-                  clear k_MML
-              end
-          end
-      end
-      clear i j month
-      % mld_10m=squeeze(nansum(depth_MML(:,:,2:end,:),3)).*10+squeeze(nansum(depth_MML(:,:,1,:),3)).*5;
-      % figure;imagesc(mld_10m(:,:,1));load color2; colormap(gca,color2); caxis([0 600]);
-      % figure;imagesc(mld0(:,:,1));load color2; colormap(gca,color2); caxis([0 600]);
-      
-      CT_depth0(isnan(depth_MML))=NaN;
-      mlt_monthly(:,:,:)=squeeze(nanmean(CT_depth0,3));
-      % figure;imagesc(MLT(:,:,1,2));
-      clear CT_depth0 
-      clear depth_MML depth10 mld_10m
-    % #####################################################################
-
-    
-      cd('/srv/ccrc/OceanME/z5195509/Temporary_Cal')
-      save(['mlt_monthly_Rh0_0125_GSW_IAP_C17_',num2str(year),'_MLD_Climatology.mat'],...
-            'mlt_monthly','lon_IAP','lat_IAP')
-      clear  mlt_monthly
-      count_yr=count_yr+1;
-end
-% #########################################################################
-% #########################################################################
-
-
-      
-
-% #########################################################################  
-% #########################################################################
-% Monthly MLT 2023 
-clc;clear
-
-% #########################################################################
-%     % 2.2 Mixed-Layer Temp from IAP in 2023
-%     % 2023 Monthly MLD - from IAP
-%     disp(['MLD, MLT, and ML_dens from IAPv3...'])
-%       cd('/Users/z5195509/Documents/Data/IAP_Ocean/Global_GSW_Monthly/MLD')
-%       % dRh0=0.125 ########################################################
-%       load(['mld_Rh0_0125_GSW_SA_CT_Interp_IAP_C17_2023.mat'],'mld','lon_IAP','lat_IAP')
-%       mld(:,:,:,10:12)=NaN;
-%       % ###################################################################
+%     % #####################################################################
 %       
-%       lat_IAP=lat_IAP(:,1);
-%       mld0(:,:,:)=squeeze(mld(:,:,1,1:12));
-%       clear mld
+% 
+% % #########################################################################
+% count_yr=1;
+% for year=1981:2022
+%     % #####################################################################
+%     % Mixed-Layer Temp from IAP
+%     % Monthly MLD from IAP
+%     disp(['   MLT from IAPv3, Year#',num2str(year)])
+% %       cd('/srv/ccrc/OceanME/z5195509/Data/IAP_Global_Ocean_Gridded_Product/Global_GSW_Monthly_V2_Double/MLD')
+% %       % dRh0=0.125 ########################################################
+% %       load(['mld_Rh0_0125_GSW_SA_CT_Interp_IAP_C17_',num2str(year),'.mat'],'mld','lon_IAP','lat_IAP')
+% %       lat_IAP=lat_IAP(:,1);
+% %       mld0(:,:,1:12)=squeeze(mld(:,:,1,1:12));
+% %       clear mld
+% %       
+% %       lon_IAP0(1:340,1)=lon_IAP(21:360,1);
+% %       lon_IAP0(341:360,1)=lon_IAP(1:20,1)+360; clear lon_IAP
+% %       lon_IAP=lon_IAP0; clear lon_IAP0
+% %       
+% %       mld00(1:340,:,:)=mld0(21:360,:,:);
+% %       mld00(341:360,:,:)=mld0(1:20,:,:); clear mld0
+% %       mld_monthly=mld00; clear mld00
+% %       % figure;imagesc(mld_monthly(:,:,1))
+%     % #####################################################################
 %       
-%       lon_IAP0(1:340,1)=lon_IAP(21:360,1);
-%       lon_IAP0(341:360,1)=lon_IAP(1:20,1)+360; clear lon_IAP
-%       lon_IAP=lon_IAP0; clear lon_IAP0
 %       
-%       mld00(1:340,:,:)=mld0(21:360,:,:);
-%       mld00(341:360,:,:)=mld0(1:20,:,:); clear mld0
-%       % mld00(isnan(basin_dep_mon))=NaN;
-%       mld0=mld00; clear mld00
-%       mld_2023(:,:,:)=mld0;
-    % #####################################################################
-    % Monthly MLD Climatology from IAP
-    count=1;
-    for year=1981:2010
-        disp(['   MLD from IAPv3, Year#',num2str(year)])
-          cd('/Users/z5195509/Documents/Data/IAP_Ocean/Global_GSW_Monthly/MLD')
-          % dRh0=0.125 ########################################################
-          load(['mld_Rh0_0125_GSW_SA_CT_Interp_IAP_C17_',num2str(year),'.mat'],'mld','lon_IAP','lat_IAP')
-          lat_IAP=lat_IAP(:,1);
-          mld0(:,:,1:12)=squeeze(mld(:,:,1,1:12));
-          clear mld
-
-          lon_IAP0(1:340,1)=lon_IAP(21:360,1);
-          lon_IAP0(341:360,1)=lon_IAP(1:20,1)+360; clear lon_IAP
-          lon_IAP=lon_IAP0; clear lon_IAP0
-
-          mld00(1:340,:,:)=mld0(21:360,:,:);
-          mld00(341:360,:,:)=mld0(1:20,:,:); clear mld0
-          mld_monthly(:,:,:,count)=mld00; clear mld00
-          count=count+1;
-    end
-    clear year count
-    mld_monthly=nanmean(mld_monthly,4);
-      % figure;imagesc(mld_monthly(:,:,1))
-    % #####################################################################
-    
-    
-
-    % 2023 Monthly MLT - from IAP
-      cd('/Users/z5195509/Documents/Data/IAP_Ocean/Global_GSW_Monthly/')
-      load(['CT_depth_Monthly_gswTSinterp_Glob_10itvl_IAP_C17_2023.mat'],'CT_depth','depth10')
-      CT_depth0(1:340,1:180,1:196,1:12)=CT_depth(21:360,1:180,1:196,1:12);
-      CT_depth0(341:360,1:180,1:196,1:12)=CT_depth(1:20,1:180,1:196,1:12);
-      clear CT_depth
-      depth10=depth10(1:196,1);
-
-      depth_MML=nan(length(lon_IAP),length(lat_IAP),length(depth10),12);
-      for month=1:12
-          for i=1:length(lon_IAP)
-              for j=1:length(lat_IAP)
-                  k_MML=find(abs(depth10(:,1)-mld_monthly(i,j,month))==min(abs(depth10(:,1)-mld_monthly(i,j,month))));
-                  depth_MML(i,j,1:k_MML,month)=1;
-                  clear k_MML
-              end
-          end
-      end
-      clear i j month
-
-      CT_depth0(isnan(depth_MML))=NaN;
-      MLT(:,:,:)=squeeze(nanmean(CT_depth0,3));
-      % figure;imagesc(MLT(:,:,1,2));
-      clear CT_depth0 
-      clear depth_MML depth10 mld0 mld_10m
-      
-      mlt_monthly(:,:,1:9)=MLT(:,:,1:9); clear MLT
-      
-      
-      cd('/Users/z5195509/Documents/6_NA_MHW_MLD/2_1_MLT_Decomposition/plot_MLT_decomposition_ERA5_SST_IAP_V3_Monthly_19812023')
-      save(['mlt_monthly_Rh0_0125_GSW_IAP_C17_2023_MLD_Climatology.mat'],...
-            'mlt_monthly','lon_IAP','lat_IAP')
-      clear  mlt_monthly
+%     % #####################################################################
+%     % Monthly MLT from IAP
+%       cd('/srv/ccrc/OceanME/z5195509/Data/IAP_Global_Ocean_Gridded_Product/Global_GSW_Monthly_V2_Double/')
+%       load(['CT_depth_Monthly_gswTSinterp_Glob_10itvl_IAP_C17_',num2str(year),'.mat'],'CT_depth','depth10')
+%       CT_depth0(1:340,1:180,1:196,1:12)=CT_depth(21:360,1:180,1:196,1:12);
+%       CT_depth0(341:360,1:180,1:196,1:12)=CT_depth(1:20,1:180,1:196,1:12);
+%       clear CT_depth
+%       depth10=depth10(1:196,1);
+% 
+%       depth_MML=nan(length(lon_IAP),length(lat_IAP),length(depth10),12);
+%       for month=1:12
+%           for i=1:length(lon_IAP)
+%               for j=1:length(lat_IAP)
+%                   k_MML=find(abs(depth10(:,1)-mld_monthly(i,j,month))==min(abs(depth10(:,1)-mld_monthly(i,j,month))));
+%                   depth_MML(i,j,1:k_MML,month)=1;
+%                   clear k_MML
+%               end
+%           end
+%       end
+%       clear i j month
+%       % mld_10m=squeeze(nansum(depth_MML(:,:,2:end,:),3)).*10+squeeze(nansum(depth_MML(:,:,1,:),3)).*5;
+%       % figure;imagesc(mld_10m(:,:,1));load color2; colormap(gca,color2); caxis([0 600]);
+%       % figure;imagesc(mld0(:,:,1));load color2; colormap(gca,color2); caxis([0 600]);
+%       
+%       CT_depth0(isnan(depth_MML))=NaN;
+%       mlt_monthly(:,:,:)=squeeze(nanmean(CT_depth0,3));
+%       % figure;imagesc(MLT(:,:,1,2));
+%       clear CT_depth0 
+%       clear depth_MML depth10 mld_10m
+%     % #####################################################################
+% 
+%     
+%       cd('/srv/ccrc/OceanME/z5195509/Temporary_Cal')
+%       save(['mlt_monthly_Rh0_0125_GSW_IAP_C17_',num2str(year),'_MLD_Climatology.mat'],...
+%             'mlt_monthly','lon_IAP','lat_IAP')
+%       clear  mlt_monthly
+%       count_yr=count_yr+1;
+% end
+% % #########################################################################
+% % #########################################################################
+% 
+% 
+%       
+% 
+% % #########################################################################  
+% % #########################################################################
+% % Monthly MLT 2023 
+% clc;clear
+% 
+% % #########################################################################
+% %     % 2.2 Mixed-Layer Temp from IAP in 2023
+% %     % 2023 Monthly MLD - from IAP
+% %     disp(['MLD, MLT, and ML_dens from IAPv3...'])
+% %       cd('/Users/z5195509/Documents/Data/IAP_Ocean/Global_GSW_Monthly/MLD')
+% %       % dRh0=0.125 ########################################################
+% %       load(['mld_Rh0_0125_GSW_SA_CT_Interp_IAP_C17_2023.mat'],'mld','lon_IAP','lat_IAP')
+% %       mld(:,:,:,10:12)=NaN;
+% %       % ###################################################################
+% %       
+% %       lat_IAP=lat_IAP(:,1);
+% %       mld0(:,:,:)=squeeze(mld(:,:,1,1:12));
+% %       clear mld
+% %       
+% %       lon_IAP0(1:340,1)=lon_IAP(21:360,1);
+% %       lon_IAP0(341:360,1)=lon_IAP(1:20,1)+360; clear lon_IAP
+% %       lon_IAP=lon_IAP0; clear lon_IAP0
+% %       
+% %       mld00(1:340,:,:)=mld0(21:360,:,:);
+% %       mld00(341:360,:,:)=mld0(1:20,:,:); clear mld0
+% %       % mld00(isnan(basin_dep_mon))=NaN;
+% %       mld0=mld00; clear mld00
+% %       mld_2023(:,:,:)=mld0;
+%     % #####################################################################
+%     % Monthly MLD Climatology from IAP
+%     count=1;
+%     for year=1981:2010
+%         disp(['   MLD from IAPv3, Year#',num2str(year)])
+%           cd('/Users/z5195509/Documents/Data/IAP_Ocean/Global_GSW_Monthly/MLD')
+%           % dRh0=0.125 ########################################################
+%           load(['mld_Rh0_0125_GSW_SA_CT_Interp_IAP_C17_',num2str(year),'.mat'],'mld','lon_IAP','lat_IAP')
+%           lat_IAP=lat_IAP(:,1);
+%           mld0(:,:,1:12)=squeeze(mld(:,:,1,1:12));
+%           clear mld
+% 
+%           lon_IAP0(1:340,1)=lon_IAP(21:360,1);
+%           lon_IAP0(341:360,1)=lon_IAP(1:20,1)+360; clear lon_IAP
+%           lon_IAP=lon_IAP0; clear lon_IAP0
+% 
+%           mld00(1:340,:,:)=mld0(21:360,:,:);
+%           mld00(341:360,:,:)=mld0(1:20,:,:); clear mld0
+%           mld_monthly(:,:,:,count)=mld00; clear mld00
+%           count=count+1;
+%     end
+%     clear year count
+%     mld_monthly=nanmean(mld_monthly,4);
+%       % figure;imagesc(mld_monthly(:,:,1))
+%     % #####################################################################
+%     
+%     
+% 
+%     % 2023 Monthly MLT - from IAP
+%       cd('/Users/z5195509/Documents/Data/IAP_Ocean/Global_GSW_Monthly/')
+%       load(['CT_depth_Monthly_gswTSinterp_Glob_10itvl_IAP_C17_2023.mat'],'CT_depth','depth10')
+%       CT_depth0(1:340,1:180,1:196,1:12)=CT_depth(21:360,1:180,1:196,1:12);
+%       CT_depth0(341:360,1:180,1:196,1:12)=CT_depth(1:20,1:180,1:196,1:12);
+%       clear CT_depth
+%       depth10=depth10(1:196,1);
+% 
+%       depth_MML=nan(length(lon_IAP),length(lat_IAP),length(depth10),12);
+%       for month=1:12
+%           for i=1:length(lon_IAP)
+%               for j=1:length(lat_IAP)
+%                   k_MML=find(abs(depth10(:,1)-mld_monthly(i,j,month))==min(abs(depth10(:,1)-mld_monthly(i,j,month))));
+%                   depth_MML(i,j,1:k_MML,month)=1;
+%                   clear k_MML
+%               end
+%           end
+%       end
+%       clear i j month
+% 
+%       CT_depth0(isnan(depth_MML))=NaN;
+%       MLT(:,:,:)=squeeze(nanmean(CT_depth0,3));
+%       % figure;imagesc(MLT(:,:,1,2));
+%       clear CT_depth0 
+%       clear depth_MML depth10 mld0 mld_10m
+%       
+%       mlt_monthly(:,:,1:9)=MLT(:,:,1:9); clear MLT
+%       
+%       
+%       cd('/Users/z5195509/Documents/6_NA_MHW_MLD/2_1_MLT_Decomposition/plot_MLT_decomposition_ERA5_SST_IAP_V3_Monthly_19812023')
+%       save(['mlt_monthly_Rh0_0125_GSW_IAP_C17_2023_MLD_Climatology.mat'],...
+%             'mlt_monthly','lon_IAP','lat_IAP')
+%       clear  mlt_monthly
 
 % #########################################################################
 % #########################################################################
@@ -657,7 +657,7 @@ time_ann=(1981:2010)';
     % #####################################################################
     % Monthly MLD Climatology from IAP
     count=1;
-    for year=1981:2023% 2010
+    for year=1981:2010
         disp(['   MLD from IAPv3, Year#',num2str(year)])
           cd('/Users/z5195509/Documents/Data/IAP_Ocean/Global_GSW_Monthly/MLD')
           % dRh0=0.125 ########################################################
@@ -847,7 +847,7 @@ for year=1981:2023
          NA_SST_mon_Qsen(1:12,1)=squeeze(proj_NA_SST_mon_Qsen(1:12,count_yr));
          
          cd('/Users/z5195509/Documents/6_NA_MHW_MLD/2_1_MLT_Decomposition/plot_MLT_decomposition_ERA5_SST_IAP_V3_Monthly_19812023_V2_1deg')
-         save(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_2_Clim_MLD_19812023.mat'],...
+         save(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_2_Clim_MLD.mat'],...
               'NA_SST_mon_Qnet','NA_SST_mon_Qswr','NA_SST_mon_Qlat','NA_SST_mon_Qlon','NA_SST_mon_Qsen',...
               'dMLT_Qnet_mon','dMLT_Qswr_mon','dMLT_Qlat_mon','dMLT_Qlon_mon','dMLT_Qsen_mon',...
               'MLT_Qnet_mon','MLT_Qswr_mon','MLT_Qlat_mon','MLT_Qlon_mon','MLT_Qsen_mon',...
@@ -919,7 +919,7 @@ for year=1981:2023
     % Monthly heat flux terms
       cd('/Users/z5195509/Documents/6_NA_MHW_MLD/2_1_MLT_Decomposition/plot_MLT_decomposition_ERA5_SST_IAP_V3_Monthly_19812023_V2_1deg/')
       count=1;
-      for year_qnet=1981:2023
+      for year_qnet=1981:2010
           disp(['    heat fluxes Year#',num2str(year_qnet)])
           load(['heatflux_W_m2_ERA5_Monthly_Averaged_Reanalysis_on_Single_Levels_',num2str(year_qnet),'_1deg.mat'],...
                 'shortwave','latent','longwave','sensible') 
@@ -1090,7 +1090,7 @@ for year=1981:2023
          NA_SST_mon_Qsen(1:12,1)=squeeze(proj_NA_SST_mon_Qsen(1:12,count_yr));
          
          cd('/Users/z5195509/Documents/6_NA_MHW_MLD/2_1_MLT_Decomposition/plot_MLT_decomposition_ERA5_SST_IAP_V3_Monthly_19812023_V2_1deg')
-         save(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_3_Clim_Qnet_19812023.mat'],...
+         save(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_3_Clim_Qnet.mat'],...
               'NA_SST_mon_Qnet','NA_SST_mon_Qswr','NA_SST_mon_Qlat','NA_SST_mon_Qlon','NA_SST_mon_Qsen',...
               'dMLT_Qnet_mon','dMLT_Qswr_mon','dMLT_Qlat_mon','dMLT_Qlon_mon','dMLT_Qsen_mon',...
               'MLT_Qnet_mon','MLT_Qswr_mon','MLT_Qlat_mon','MLT_Qlon_mon','MLT_Qsen_mon',...
@@ -1343,14 +1343,14 @@ clear dMLT* NA_MLT*
 count_yr=1;
 for year=1981:2023
     cd('/Users/z5195509/Documents/6_NA_MHW_MLD/2_1_MLT_Decomposition/plot_MLT_decomposition_ERA5_SST_IAP_V3_Monthly_19812023_V2_1deg')
-%     % test with MLD clim values - 1981-2010
-%     load(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_2_Clim_MLD.mat'],...
-%           'NA_SST_mon_Qnet','NA_SST_mon_Qswr','NA_SST_mon_Qlat','NA_SST_mon_Qlon','NA_SST_mon_Qsen',...
-%           'dMLT_Qnet_mon','dMLT_Qswr_mon','dMLT_Qlat_mon','dMLT_Qlon_mon','dMLT_Qsen_mon')
-    % test with MLD clim values - 1981-2023
-    load(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_2_Clim_MLD_19812023.mat'],...
+    % test with MLD clim values - 1981-2010
+    load(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_2_Clim_MLD.mat'],...
           'NA_SST_mon_Qnet','NA_SST_mon_Qswr','NA_SST_mon_Qlat','NA_SST_mon_Qlon','NA_SST_mon_Qsen',...
           'dMLT_Qnet_mon','dMLT_Qswr_mon','dMLT_Qlat_mon','dMLT_Qlon_mon','dMLT_Qsen_mon')
+%     % test with MLD clim values - 1981-2023
+%     load(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_2_Clim_MLD_19812023.mat'],...
+%           'NA_SST_mon_Qnet','NA_SST_mon_Qswr','NA_SST_mon_Qlat','NA_SST_mon_Qlon','NA_SST_mon_Qsen',...
+%           'dMLT_Qnet_mon','dMLT_Qswr_mon','dMLT_Qlat_mon','dMLT_Qlon_mon','dMLT_Qsen_mon')
     dMLT_Qnet_mon0(:,count_yr)=dMLT_Qnet_mon;
     dMLT_Qswr_mon0(:,count_yr)=dMLT_Qswr_mon;
     dMLT_Qlat_mon0(:,count_yr)=dMLT_Qlat_mon;
@@ -1431,8 +1431,8 @@ subplot('position',pos{102})
     set(gca,'GridColor',[.8 .8 .8],'GridAlpha',0.3,'GridLineStyle','-')
     ylabel(['[ ^oC per month ]'],'fontsize',22,'color','k','FontWeight','normal')
         
-    % text(4.6,0.7,'b. MLD climatology 1981-2010','fontsize',22,'color','k','FontWeight','bold')
-    text(4.6,0.7,'b. MLD climatology 1981-2023','fontsize',22,'color','k','FontWeight','bold')  
+    text(4.6,0.7,'b. MLD climatology 1981-2010','fontsize',22,'color','k','FontWeight','bold')
+%     text(4.6,0.7,'b. MLD climatology 1981-2023','fontsize',22,'color','k','FontWeight','bold')  
     
     
 % #########################################################################
@@ -1480,14 +1480,14 @@ clear dMLT* NA_MLT*
 count_yr=1;
 for year=1981:2023
     cd('/Users/z5195509/Documents/6_NA_MHW_MLD/2_1_MLT_Decomposition/plot_MLT_decomposition_ERA5_SST_IAP_V3_Monthly_19812023_V2_1deg')
-%     % test with Qnet clim values - 1981-2010
-%     load(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_3_Clim_Qnet.mat'],...
-%           'NA_SST_mon_Qnet','NA_SST_mon_Qswr','NA_SST_mon_Qlat','NA_SST_mon_Qlon','NA_SST_mon_Qsen',...
-%           'dMLT_Qnet_mon','dMLT_Qswr_mon','dMLT_Qlat_mon','dMLT_Qlon_mon','dMLT_Qsen_mon')
-    % test with Qnet clim values - 1981-2023
-    load(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_3_Clim_Qnet_19812023.mat'],...
+    % test with Qnet clim values - 1981-2010
+    load(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_3_Clim_Qnet.mat'],...
           'NA_SST_mon_Qnet','NA_SST_mon_Qswr','NA_SST_mon_Qlat','NA_SST_mon_Qlon','NA_SST_mon_Qsen',...
           'dMLT_Qnet_mon','dMLT_Qswr_mon','dMLT_Qlat_mon','dMLT_Qlon_mon','dMLT_Qsen_mon')
+%     % test with Qnet clim values - 1981-2023
+%     load(['Predicted_NA_monthly_MLT_ERA5_IAP_V3_Accumulated_',num2str(year),'_3_Clim_Qnet_19812023.mat'],...
+%           'NA_SST_mon_Qnet','NA_SST_mon_Qswr','NA_SST_mon_Qlat','NA_SST_mon_Qlon','NA_SST_mon_Qsen',...
+%           'dMLT_Qnet_mon','dMLT_Qswr_mon','dMLT_Qlat_mon','dMLT_Qlon_mon','dMLT_Qsen_mon')
     dMLT_Qnet_mon0(:,count_yr)=dMLT_Qnet_mon;
     dMLT_Qswr_mon0(:,count_yr)=dMLT_Qswr_mon;
     dMLT_Qlat_mon0(:,count_yr)=dMLT_Qlat_mon;
@@ -1568,8 +1568,8 @@ subplot('position',pos{103})
     set(gca,'GridColor',[.8 .8 .8],'GridAlpha',0.3,'GridLineStyle','-')
     ylabel(['[ ^oC per month ]'],'fontsize',22,'color','k','FontWeight','normal')
       
-    % text(4.6,0.7,'c. Qnet climatology 1981-2010','fontsize',22,'color','k','FontWeight','bold')
-    text(4.6,0.7,'c. Qnet climatology 1981-2023','fontsize',22,'color','k','FontWeight','bold')  
+    text(4.6,0.7,'c. Qnet climatology 1981-2010','fontsize',22,'color','k','FontWeight','bold')
+%     text(4.6,0.7,'c. Qnet climatology 1981-2023','fontsize',22,'color','k','FontWeight','bold')  
     
         
 cd('/Users/z5195509/Documents/6_NA_MHW_MLD/2_1_MLT_Decomposition/')
